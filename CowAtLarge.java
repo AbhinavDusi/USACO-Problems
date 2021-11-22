@@ -64,7 +64,7 @@ class Graph {
 			visited[n] = true; 
 			for (int i : edges[n]) 
 				if (!visited[i]) {
-					nodeToEdge[i] = Math.min(nodeToEdge[i], nodeToEdge[n] + 1); 
+					nodeToEdge[i] = nodeToEdge[n] + 1; 
 					queue.add(i); 
 				}
 		}

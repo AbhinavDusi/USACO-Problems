@@ -2,14 +2,12 @@ import java.io.*;
 import java.util.*;
 public class WeightedIntervalScheduling {
   public static void main(String[] args) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader("scheduling.in"));
+    Scanner s = new Scanner(new File("scheduling.in"));
     PrintWriter pw = new PrintWriter(new File("scheduling.out"));
     ArrayList<Job> jobList = new ArrayList<Job>();
-    int numJobs = Integer.parseInt(br.readLine()), max = 0;
-    for (int i = 0; i < numJobs; i ++) {
-      int[] line = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-      jobList.add(new Job(line[0], line[1], line[2]));
-    }
+    int numJobs = s.nextInt(), max = 0;
+    for (int i = 0; i < numJobs; i ++) 
+      jobList.add(new Job(s.nextInt(), s.nextInt(), s.nextInt()));
     Collections.sort(jobList, new CompareByFinish());
     int[] dp = new int[numJobs + 1], endTimes = new int[numJobs + 1];
     for (int i = 0; i < numJobs; i ++)
@@ -21,9 +19,8 @@ public class WeightedIntervalScheduling {
         max = Math.max(max, dp[i]);
     }
     pw.println(max);
-    br.close();
+    s.close();
     pw.close();
-    System.exit(0);
   }
 }
 class Job {

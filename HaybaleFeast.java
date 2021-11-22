@@ -1,51 +1,49 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 public class HaybaleFeast {
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("haybales.in")); 
-        PrintWriter pw = new PrintWriter(new File("haybales.out"));
-        String line = br.readLine(); 
-        List<long[]> haybales = new ArrayList<>(); 
-        long[] pair; 
-        long n, flavor;
-        n = Long.parseLong(line.split(" ")[0]);
-        flavor = Long.parseLong(line.split(" ")[1]); 
-        for (int i = 0; i < n; i ++) {
-                pair = new long[2];
-                line = br.readLine(); 
-                pair[0] = Long.parseLong(line.split(" ")[0]); 
-                pair[1] = Long.parseLong(line.split(" ")[1]); 
-                haybales.add(pair); 
+        Scanner s = new Scanner(new File("hayfeast.in"));
+        PrintWriter pw = new PrintWriter(new File("hayfeast.out"));
+        int N = s.nextInt(), l = 0;
+        long M = s.nextLong(), currSum = 0, min = Integer.MAX_VALUE; 
+        long[] flavor = new long[N]; 
+        MaxQuery mq = new MaxQuery(N); 
+        for (int i = 0; i < N; i ++) {
+            flavor[i] = s.nextLong();
+            mq.updateMax(0, N - 1, i, s.nextLong(), 0); 
         }
-        pw.println(answer(haybales, flavor));
-        br.close();
-        pw.close(); 
+        for (int r = 0; r < N; r ++) {
+            currSum += flavor[r]; 
+            if (currSum >= M) 
+                min = Math.min(min, mq.getMax(0, N - 1, l, r, 0));
+            while (currSum >= M) 
+                currSum -= flavor[l ++]; 
+        } 
+        pw.println(min);
+        s.close();
+        pw.close();
     }
-    public static long answer(List<long[]> haybales, long flavor) {
-        TreeMap<Long, Long> tm = new TreeMap<>(); 
-        long sum = haybales.get(0)[0], start = 0, end = 1, minSpice = 1000000000;
-        updateMap(tm, haybales.get(0)[1], 1); 
-        while (end < haybales.size()) {
-            while (sum < flavor && end < haybales.size()) { 
-                updateMap(tm, haybales.get((int)end)[1], 1);
-                sum += haybales.get((int)end)[0]; 
-                end ++; 
-            }
-            while (sum >= flavor && start < haybales.size()) {
-                updateMap(tm, haybales.get((int)start)[1], -1);
-                minSpice = Math.min(minSpice, tm.lastKey()); 
-                sum -= haybales.get((int)start)[0];
-                start ++; 
-            }
-        }
-        return minSpice; 
+}
+class MaxQuery {
+    private long[] max; 
+    public MaxQuery (int n) {
+        max = new long[1<<((int)Math.ceil(Math.log(n)/Math.log(2))+1)]; 
     }
-    public static void updateMap(TreeMap<Long, Long> tm, long key, long value) {
-        if (!tm.containsKey(key))
-            tm.put(key, (long)0);
-        if (tm.get(key) + value == 0)
-            tm.remove(key); 
-        else 
-            tm.put(key, tm.get(key) + value);
+    public void updateMax (int l, int r, int i, long val, int pos) {
+        if (i < l || i > r) 
+            return; 
+        max[pos] = val; 
+        if (r != l) {
+            updateMax(l, (r+l)/2, i, val, 2*pos+1); 
+            updateMax((r+l)/2+1, r, i, val, 2*pos+2); 
+            max[pos] = Math.max(max[2*pos+1], max[2*pos+2]); 
+        } 
+    }
+    public long getMax (int l, int r, int ql, int qr, int pos) {
+        if (ql <= l && qr >= r) 
+            return max[pos];
+        if (r < ql || l > qr) 
+            return Integer.MIN_VALUE; 
+        return Math.max(getMax(l, (r+l)/2, ql, qr, 2*pos+1), getMax((r+l)/2+1, r, ql, qr, 2*pos+2));
     }
 }
